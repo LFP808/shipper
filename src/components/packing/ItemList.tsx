@@ -2,9 +2,11 @@
 
 import { ItemInputForm } from './ItemInputForm'
 import { TemplateSelector } from './TemplateSelector'
+import { DevicePicker } from './DevicePicker'
 import { Button } from '@/components/ui/button'
 import { Plus, Package } from 'lucide-react'
 import type { Item } from '@/lib/packing/types'
+import type { DevicePreset } from '@/lib/devices'
 
 interface Props {
   items: Item[]
@@ -13,10 +15,11 @@ interface Props {
   onRemove: (id: string) => void
   onChange: (id: string, patch: Partial<Item>) => void
   onLoadTemplate: (t: { name: string; length_in: number; width_in: number; height_in: number; weight_lb: number }) => void
+  onAddDevice: (device: DevicePreset) => void
   onPack: () => void
 }
 
-export function ItemList({ items, loading, onAdd, onRemove, onChange, onLoadTemplate, onPack }: Props) {
+export function ItemList({ items, loading, onAdd, onRemove, onChange, onLoadTemplate, onAddDevice, onPack }: Props) {
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
@@ -33,7 +36,8 @@ export function ItemList({ items, loading, onAdd, onRemove, onChange, onLoadTemp
         <span className="w-5" />
         <span className="flex-1 min-w-[100px]">Name</span>
         <span>L × W × H</span>
-        <span className="ml-1">Weight</span>
+        <span className="ml-1">lb &nbsp; oz</span>
+        <span className="ml-1">Qty</span>
         <span className="w-8" />
       </div>
 
@@ -59,17 +63,19 @@ export function ItemList({ items, loading, onAdd, onRemove, onChange, onLoadTemp
       </div>
 
       {/* Actions */}
-      <div className="flex gap-2 mt-3">
-        <Button variant="outline" size="sm" onClick={onAdd} className="flex items-center gap-1">
+      <div className="flex gap-2 mt-3 flex-wrap">
+        <Button variant="outline" size="sm" onClick={onAdd} className="h-9 text-sm flex items-center gap-1">
           <Plus className="h-4 w-4" />
           Add Item
         </Button>
+        <DevicePicker onAdd={onAddDevice} />
         <Button
           onClick={onPack}
           disabled={loading || items.length === 0}
-          className="flex-1 bg-blue-600 hover:bg-blue-700"
+          size="sm"
+          className="flex-1 min-w-[80px] h-9 text-sm bg-blue-600 hover:bg-blue-700"
         >
-          {loading ? 'Packing…' : 'Pack It'}
+          {loading ? 'Packing...' : 'Pack It'}
         </Button>
       </div>
     </div>

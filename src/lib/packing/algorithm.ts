@@ -81,7 +81,7 @@ function prunePoints(points: Point3D[], placed: PlacedItem[]): Point3D[] {
 
 function tryPack(items: Item[], box: Box): PackResult {
   const placedItems: PlacedItem[] = []
-  const unpackedItemIds: string[] = []
+  const unpackedItems: { id: string; name: string }[] = []
   let extremePoints: Point3D[] = [{ x: 0, y: 0, z: 0 }]
   let totalItemVolume = 0
 
@@ -125,7 +125,7 @@ function tryPack(items: Item[], box: Box): PackResult {
     }
 
     if (!placed) {
-      unpackedItemIds.push(item.id)
+      unpackedItems.push({ id: item.id, name: item.name })
     }
   }
 
@@ -133,7 +133,7 @@ function tryPack(items: Item[], box: Box): PackResult {
   const utilizationPct = Math.round((totalItemVolume / boxVolume) * 100)
   const totalWeightLb = items.reduce((sum, item) => sum + item.weightLb, 0)
 
-  return { box, placedItems, unpackedItemIds, utilizationPct, totalWeightLb }
+  return { box, placedItems, unpackedItems, utilizationPct, totalWeightLb }
 }
 
 export function packItems(items: Item[], boxes: Box[] = STANDARD_BOXES): PackResult {
@@ -141,10 +141,19 @@ export function packItems(items: Item[], boxes: Box[] = STANDARD_BOXES): PackRes
     throw new Error('No items to pack')
   }
 
-  const totalWeight = items.reduce((sum, item) => sum + item.weightLb, 0)
+  // Expand items by quantity
+  const expandedItems: Item[] = items.flatMap(item =>
+    Array.from({ length: item.quantity }, (_, i) => ({
+      ...item,
+      id: i === 0 ? item.id : `${item.id}-${i}`,
+      name: item.quantity > 1 ? `${item.name} (${i + 1}/${item.quantity})` : item.name,
+    }))
+  )
+
+  const totalWeight = expandedItems.reduce((sum, item) => sum + item.weightLb, 0)
 
   // Sort items by volume descending for better packing
-  const sortedItems = [...items].sort(
+  const sortedItems = [...expandedItems].sort(
     (a, b) => getVolume(b.length, b.width, b.height) - getVolume(a.length, a.width, a.height)
   )
 
@@ -153,7 +162,7 @@ export function packItems(items: Item[], boxes: Box[] = STANDARD_BOXES): PackRes
     if (totalWeight > box.maxWeightLb) continue
 
     const result = tryPack(sortedItems, box)
-    if (result.unpackedItemIds.length === 0) {
+    if (result.unpackedItems.length === 0) {
       return result
     }
   }

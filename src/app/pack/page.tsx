@@ -5,18 +5,17 @@ import { usePackingSession } from '@/hooks/usePackingSession'
 import { ItemList } from '@/components/packing/ItemList'
 import { PackResult } from '@/components/packing/PackResult'
 
-// Dynamically import Three.js scene to avoid SSR issues
 const PackScene = dynamic(
   () => import('@/components/visualizer/PackScene').then(m => ({ default: m.PackScene })),
   { ssr: false, loading: () => <div className="w-full h-full bg-slate-50 rounded-lg animate-pulse" /> }
 )
 
 export default function PackPage() {
-  const { items, result, loading, error, addItem, removeItem, updateItem, loadTemplate, pack } = usePackingSession()
+  const { items, result, loading, error, addItem, removeItem, updateItem, loadTemplate, addDevice, pack } = usePackingSession()
 
   return (
     <div className="flex h-screen overflow-hidden">
-      {/* Left panel — items */}
+      {/* Left panel */}
       <div className="w-80 min-w-[300px] border-r border-slate-200 bg-white flex flex-col p-4">
         <ItemList
           items={items}
@@ -25,13 +24,13 @@ export default function PackPage() {
           onRemove={removeItem}
           onChange={updateItem}
           onLoadTemplate={loadTemplate}
+          onAddDevice={addDevice}
           onPack={pack}
         />
       </div>
 
-      {/* Right panel — visualizer + result */}
+      {/* Right panel */}
       <div className="flex-1 flex flex-col overflow-hidden bg-slate-50">
-        {/* 3D scene */}
         <div className="flex-1 p-4 min-h-0">
           {result ? (
             <PackScene result={result} />
@@ -40,7 +39,6 @@ export default function PackPage() {
           )}
         </div>
 
-        {/* Result panel */}
         {result && (
           <div className="border-t border-slate-200 p-4 bg-white max-h-72 overflow-y-auto">
             <PackResult result={result} />
@@ -58,7 +56,7 @@ function EmptyState({ loading, error }: { loading: boolean; error: string | null
         {error ? (
           <p className="text-red-500 text-sm">{error}</p>
         ) : loading ? (
-          <p className="text-slate-400 text-sm">Calculating best fit…</p>
+          <p className="text-slate-400 text-sm">Calculating best fit...</p>
         ) : (
           <>
             <div className="text-5xl mb-3">📦</div>

@@ -10,8 +10,8 @@ interface Props {
 }
 
 export function PackResult({ result }: Props) {
-  const { box, placedItems, unpackedItemIds, utilizationPct, totalWeightLb } = result
-  const hasUnpacked = unpackedItemIds.length > 0
+  const { box, placedItems, unpackedItems, utilizationPct, totalWeightLb } = result
+  const hasUnpacked = unpackedItems.length > 0
 
   return (
     <Card className="border-0 bg-slate-50">
@@ -80,8 +80,14 @@ export function PackResult({ result }: Props) {
           <div className="flex items-start gap-2 bg-red-50 border border-red-200 rounded-md p-2 text-xs text-red-700">
             <AlertTriangle className="h-4 w-4 flex-shrink-0 mt-0.5" />
             <div>
-              <p className="font-medium">Some items did not fit</p>
-              <p>{unpackedItemIds.length} item(s) could not be packed into the largest available box.</p>
+              <p className="font-medium">
+                {unpackedItems.length} item{unpackedItems.length !== 1 ? 's' : ''} did not fit
+              </p>
+              <ul className="mt-0.5 space-y-0.5">
+                {unpackedItems.map(item => (
+                  <li key={item.id} className="font-medium">{item.name}</li>
+                ))}
+              </ul>
             </div>
           </div>
         ) : (

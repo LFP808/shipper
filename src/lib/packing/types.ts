@@ -5,6 +5,7 @@ export interface Item {
   width: number
   height: number
   weightLb: number
+  quantity: number
 }
 
 export interface Box {
@@ -32,7 +33,7 @@ export interface PlacedItem {
 export interface PackResult {
   box: Box
   placedItems: PlacedItem[]
-  unpackedItemIds: string[]
+  unpackedItems: { id: string; name: string }[]
   utilizationPct: number
   totalWeightLb: number
 }

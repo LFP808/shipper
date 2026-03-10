@@ -3,20 +3,21 @@
 import { useState } from 'react'
 import type { Item } from '@/lib/packing/types'
 import type { PackResult } from '@/lib/packing/types'
+import type { DevicePreset } from '@/lib/devices'
 
-let idCounter = 0
-function nextId() { return `item-${++idCounter}` }
+
+function nextId() { return crypto.randomUUID() }
 
 export function usePackingSession() {
   const [items, setItems] = useState<Item[]>([
-    { id: nextId(), name: 'Item 1', length: 6, width: 4, height: 3, weightLb: 1 },
+    { id: nextId(), name: 'Item 1', length: 6, width: 4, height: 3, weightLb: 1, quantity: 1 },
   ])
   const [result, setResult] = useState<PackResult | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   function addItem() {
-    setItems(prev => [...prev, { id: nextId(), name: `Item ${prev.length + 1}`, length: 6, width: 4, height: 3, weightLb: 1 }])
+    setItems(prev => [...prev, { id: nextId(), name: `Item ${prev.length + 1}`, length: 6, width: 4, height: 3, weightLb: 1, quantity: 1 }])
   }
 
   function removeItem(id: string) {
@@ -35,6 +36,7 @@ export function usePackingSession() {
       width: template.width_in,
       height: template.height_in,
       weightLb: template.weight_lb,
+      quantity: 1,
     }
     setItems(prev => [...prev, newItem])
   }
@@ -58,5 +60,17 @@ export function usePackingSession() {
     }
   }
 
-  return { items, result, loading, error, addItem, removeItem, updateItem, loadTemplate, pack }
+  function addDevice(device: DevicePreset) {
+    setItems(prev => [...prev, {
+      id: nextId(),
+      name: device.name,
+      length: device.length,
+      width: device.width,
+      height: device.height,
+      weightLb: device.weightLb,
+      quantity: 1,
+    }])
+  }
+
+  return { items, result, loading, error, addItem, removeItem, updateItem, loadTemplate, addDevice, pack }
 }

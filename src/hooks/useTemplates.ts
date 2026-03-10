@@ -12,23 +12,28 @@ export interface Template {
   created_at: string
 }
 
-const fetcher = (url: string) => fetch(url).then(r => r.json())
+const fetcher = (url: string) => fetch(url).then(r => {
+  if (!r.ok) throw new Error('Failed to load templates')
+  return r.json()
+})
 
 export function useTemplates() {
   const { data, error, mutate, isLoading } = useSWR<Template[]>('/api/templates', fetcher)
 
   async function saveTemplate(template: Omit<Template, 'id' | 'created_at'>) {
-    await fetch('/api/templates', {
+    const res = await fetch('/api/templates', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(template),
     })
-    mutate()
+    if (!res.ok) throw new Error('Failed to save template')
+    await mutate()
   }
 
   async function deleteTemplate(id: string) {
-    await fetch(`/api/templates/${id}`, { method: 'DELETE' })
-    mutate()
+    const res = await fetch(`/api/templates/${id}`, { method: 'DELETE' })
+    if (!res.ok) throw new Error('Failed to delete template')
+    await mutate()
   }
 
   return {

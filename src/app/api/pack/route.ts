@@ -9,6 +9,7 @@ const ItemSchema = z.object({
   width: z.number().positive(),
   height: z.number().positive(),
   weightLb: z.number().min(0),
+  quantity: z.number().int().min(1).default(1),
 })
 
 const RequestSchema = z.object({
