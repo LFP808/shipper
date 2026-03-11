@@ -11,15 +11,17 @@ import type { DevicePreset } from '@/lib/devices'
 interface Props {
   items: Item[]
   loading: boolean
+  padding: boolean
   onAdd: () => void
   onRemove: (id: string) => void
   onChange: (id: string, patch: Partial<Item>) => void
   onLoadTemplate: (t: { name: string; length_in: number; width_in: number; height_in: number; weight_lb: number }) => void
-  onAddDevice: (device: DevicePreset) => void
+  onAddDevice: (device: DevicePreset, inBox: boolean) => void
+  onPaddingChange: (v: boolean) => void
   onPack: () => void
 }
 
-export function ItemList({ items, loading, onAdd, onRemove, onChange, onLoadTemplate, onAddDevice, onPack }: Props) {
+export function ItemList({ items, loading, padding, onAdd, onRemove, onChange, onLoadTemplate, onAddDevice, onPaddingChange, onPack }: Props) {
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
@@ -61,6 +63,17 @@ export function ItemList({ items, loading, onAdd, onRemove, onChange, onLoadTemp
           currentItem={items[items.length - 1]}
         />
       </div>
+
+      {/* Padding toggle */}
+      <label className="flex items-center gap-2 mt-3 cursor-pointer select-none">
+        <input
+          type="checkbox"
+          checked={padding}
+          onChange={e => onPaddingChange(e.target.checked)}
+          className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+        />
+        <span className="text-xs text-slate-600">Add 0.5″ padding to all items</span>
+      </label>
 
       {/* Actions */}
       <div className="flex gap-2 mt-3 flex-wrap">

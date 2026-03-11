@@ -15,6 +15,7 @@ export function usePackingSession() {
   const [result, setResult] = useState<PackResult | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [padding, setPadding] = useState(false)
 
   function addItem() {
     setItems(prev => [...prev, { id: nextId(), name: `Item ${prev.length + 1}`, length: 6, width: 4, height: 3, weightLb: 1, quantity: 1 }])
@@ -45,10 +46,14 @@ export function usePackingSession() {
     setLoading(true)
     setError(null)
     try {
+      const pad = padding ? 0.5 : 0
+      const paddedItems = pad > 0
+        ? items.map(item => ({ ...item, length: item.length + pad, width: item.width + pad, height: item.height + pad }))
+        : items
       const res = await fetch('/api/pack', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items }),
+        body: JSON.stringify({ items: paddedItems }),
       })
       if (!res.ok) throw new Error('Packing failed')
       const data: PackResult = await res.json()
@@ -60,17 +65,17 @@ export function usePackingSession() {
     }
   }
 
-  function addDevice(device: DevicePreset) {
+  function addDevice(device: DevicePreset, inBox: boolean) {
     setItems(prev => [...prev, {
       id: nextId(),
       name: device.name,
-      length: device.length,
-      width: device.width,
-      height: device.height,
+      length: inBox ? device.boxLength : device.length,
+      width:  inBox ? device.boxWidth  : device.width,
+      height: inBox ? device.boxHeight : device.height,
       weightLb: device.weightLb,
       quantity: 1,
     }])
   }
 
-  return { items, result, loading, error, addItem, removeItem, updateItem, loadTemplate, addDevice, pack }
+  return { items, result, loading, error, padding, setPadding, addItem, removeItem, updateItem, loadTemplate, addDevice, pack }
 }

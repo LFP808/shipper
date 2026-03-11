@@ -11,7 +11,7 @@ const PackScene = dynamic(
 )
 
 export default function PackPage() {
-  const { items, result, loading, error, addItem, removeItem, updateItem, loadTemplate, addDevice, pack } = usePackingSession()
+  const { items, result, loading, error, padding, setPadding, addItem, removeItem, updateItem, loadTemplate, addDevice, pack } = usePackingSession()
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -20,11 +20,13 @@ export default function PackPage() {
         <ItemList
           items={items}
           loading={loading}
+          padding={padding}
           onAdd={addItem}
           onRemove={removeItem}
           onChange={updateItem}
           onLoadTemplate={loadTemplate}
           onAddDevice={addDevice}
+          onPaddingChange={setPadding}
           onPack={pack}
         />
       </div>
